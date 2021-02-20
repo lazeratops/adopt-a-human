@@ -2,119 +2,188 @@ package human
 
 import (
 	"aah/pkg/util"
+	"encoding/json"
+	"fmt"
 )
 
-type organKind int
+type organKind string
 
 const (
-	OrganHeart organKind = iota
-	OrganLung
-	OrganKidney
-	OrganBrain
+	OrganHeart  organKind = "heart"
+	OrganLung   organKind = "lung"
+	OrganKidney organKind = "kidney"
+	OrganBrain  organKind = "brain"
 )
 
-type organ struct {
-	body               *body
+type Organ struct {
+	body               *Body
 	kind               organKind
-	weightG            *weight
+	weightG            *Weight
 	currentHealth      int
 	maxHealth          int
 	baseGrowthRate     int
 	growthRateModifier int
 }
 
-func generateOrgans(body *body) []*organ {
-	heart := organ{
+func generateOrgans(body *Body) []*Organ {
+	heart := Organ{
 		kind: OrganHeart,
 		body: body,
 	}
 	heart.generateAndSetHealths()
 	heart.generateAndSetWeight(100, 500)
-	heart.generateAndSetGrowthRate(body.maturity.baseRate, heart.weightG.ideal)
+	heart.generateAndSetGrowthRate(body.maturity.BaseRate, heart.weightG.Ideal)
 
-	brain := organ{
+	brain := Organ{
 		kind: OrganBrain,
 		body: body,
 	}
 	brain.generateAndSetHealths()
 	brain.generateAndSetWeight(500, 3000)
-	brain.generateAndSetGrowthRate(body.maturity.baseRate, brain.weightG.ideal)
+	brain.generateAndSetGrowthRate(body.maturity.BaseRate, brain.weightG.Ideal)
 
-	kidney1 := organ{
+	kidney1 := Organ{
 		kind: OrganKidney,
 		body: body,
 	}
 	kidney1.generateAndSetHealths()
 	kidney1.generateAndSetWeight(25, 400)
-	kidney1.generateAndSetGrowthRate(body.maturity.baseRate, kidney1.weightG.ideal)
+	kidney1.generateAndSetGrowthRate(body.maturity.BaseRate, kidney1.weightG.Ideal)
 
-	kidney2 := organ{
+	kidney2 := Organ{
 		kind: OrganKidney,
 		body: body,
 	}
 	kidney2.generateAndSetHealths()
 	kidney2.generateAndSetWeight(25, 400)
+	kidney2.generateAndSetGrowthRate(body.maturity.BaseRate, kidney2.weightG.Ideal)
 
-	lung1 := organ{
+	lung1 := Organ{
 		kind: OrganLung,
 		body: body,
 	}
 	lung1.generateAndSetHealths()
 	lung1.generateAndSetWeight(50, 400)
+	lung1.generateAndSetGrowthRate(body.maturity.BaseRate, lung1.weightG.Ideal)
 
-	lung2 := organ{
+	lung2 := Organ{
 		kind: OrganLung,
 		body: body,
 	}
 	lung2.generateAndSetHealths()
 	lung2.generateAndSetWeight(50, 400)
+	lung2.generateAndSetGrowthRate(body.maturity.BaseRate, lung2.weightG.Ideal)
 
-	return []*organ{&heart, &brain, &kidney1, &kidney2, &lung1, &lung2}
+	return []*Organ{&heart, &brain, &kidney1, &kidney2, &lung1, &lung2}
 }
 
-func (o *organ) generateAndSetHealths() {
+func (o *Organ) generateAndSetHealths() {
 	o.maxHealth = o.getRandomHealth(-1)
-	o.currentHealth = o.getRandomHealth(o.maxHealth)
+	maxBabyHealth := util.WhatIsPercentOf(25, o.maxHealth)
+	o.currentHealth = o.getRandomHealth(maxBabyHealth + 1)
 }
 
-func (o *organ) getRandomHealth(max int) int {
+func (o *Organ) getRandomHealth(max int) int {
 	if max == -1 {
 		max = 100
 	}
-	return util.Roll(0, max+1)
+	return util.Roll(1, max+1)
 }
 
-func (o *organ) generateAndSetWeight(minIdeal int, maxIdeal int) {
+func (o *Organ) generateAndSetWeight(minIdeal int, maxIdeal int) {
 	idealWeight := util.Roll(minIdeal, maxIdeal)
 	maxBabyWeight := idealWeight / 4
 	if maxBabyWeight < minIdeal {
 		maxBabyWeight = minIdeal
 	}
 	currentWeight := util.Roll(1, maxBabyWeight+1)
-	o.weightG = &weight{
-		current: currentWeight,
-		ideal:   idealWeight,
+	o.weightG = &Weight{
+		Current: currentWeight,
+		Ideal:   idealWeight,
 	}
 }
 
-func (o *organ) generateAndSetGrowthRate(baseBodyMaturityRate util.Percent, idealWeightG int) error {
-	// To start with, we generate a growth rate that will ensure even growth until maturity
-	o.baseGrowthRate = util.WhatIsPercentOf(baseBodyMaturityRate, idealWeightG)
-
+func (o *Organ) generateAndSetGrowthRate(baseBodyMaturityRate util.Percent, idealWeightG int) error {
+	// To start with, we generate a growth rate that will ensure even growth until Maturity
+	bgr := util.WhatIsPercentOf(baseBodyMaturityRate, idealWeightG)
+	if bgr == 0 {
+		bgr = 1
+	}
+	o.baseGrowthRate = bgr
 	// But when the human is at its youngest, it grows 50% faster than its base rate
 	o.growthRateModifier = util.WhatIsPercentOf(util.Percent(50), o.baseGrowthRate)
 	return nil
 }
 
-func (o *organ) grow() {
-	o.weightG.current += o.currentGrowthRate()
+func (o *Organ) grow() {
+	o.weightG.Current += o.currentGrowthRate()
 
-	// Decrease growth rate modifier by whatever the current maturity percentage is
-	// What is o.body.maturity.current percent of o.growthRateModifier?
-	p := util.WhatIsPercentOf(o.body.maturity.current, o.growthRateModifier)
+	// Decrease growth rate modifier by whatever the Current Maturity percentage is
+	p := util.WhatIsPercentOf(o.body.maturity.Current, o.growthRateModifier)
 	o.growthRateModifier -= p
 }
 
-func (o *organ) currentGrowthRate() int {
+func (o *Organ) tickHealth() {
+	if o.currentHealth < o.maxHealth && o.body.maturity.Current < 100 {
+		// Increase health by Current Maturity percentage of Max health
+		o.currentHealth += util.WhatIsPercentOf(o.body.maturity.Current, o.maxHealth)
+	}
+	// but we still have a chance to get damaged
+	roll := util.Roll(0, 100)
+	if int(o.body.Immunity.Current) > roll {
+		// Check how serious the damage will be
+		damageSeriousness := util.Roll(0, 5)
+		var damageRoll int
+		// Very magical damage seriousness calculations
+		switch damageSeriousness {
+		case 0:
+			damageRoll = util.Roll(0, 5)
+		case 1:
+			damageRoll = util.Roll(0, 10)
+		case 2:
+			damageRoll = util.Roll(0, 20)
+		case 3:
+			damageRoll = util.Roll(0, 25)
+		case 4:
+			damageRoll = util.Roll(0, 35)
+		case 5:
+			damageRoll = util.Roll(0, 50)
+		}
+		o.currentHealth -= damageRoll
+	}
+	fmt.Printf("\n%v health: %d", o.Name(), o.currentHealth)
+}
+
+func (o *Organ) currentGrowthRate() int {
 	return o.baseGrowthRate + o.growthRateModifier
+}
+
+func (o *Organ) AddHealth(modifier int) {
+	o.currentHealth += modifier
+}
+
+func (o *Organ) SubHealth(modifier int) {
+	o.currentHealth -= modifier
+}
+
+func (o *Organ) Name() string {
+	return string(o.kind)
+}
+
+func (o *Organ) MarshalJSON() ([]byte, error) {
+	return json.Marshal(struct {
+		Kind               organKind
+		WeightG            *Weight
+		CurrentHealth      int
+		MaxHealth          int
+		BaseGrowthRate     int
+		GrowthRateModifier int
+	}{
+		Kind:               o.kind,
+		WeightG:            o.weightG,
+		CurrentHealth:      o.currentHealth,
+		MaxHealth:          o.maxHealth,
+		BaseGrowthRate:     o.baseGrowthRate,
+		GrowthRateModifier: o.growthRateModifier,
+	})
 }

@@ -13,60 +13,38 @@ const (
 	maxMaturityBaseRate = 5
 )
 
-type heightCM struct {
-	current int
-	max     int
+type Height struct {
+	Current int
+	Max     int
 }
 
-type weight struct {
-	current int
-	ideal   int
+type Weight struct {
+	Current int
+	Ideal   int
 }
 
-type maturity struct {
-	current      util.Percent
-	baseRate     util.Percent
-	rateModifier util.Percent
-}
-
-func (m *maturity) currentRate() util.Percent {
-	return m.baseRate + m.rateModifier
-}
-
-type mind struct {
-}
-
-func generateHeight() *heightCM {
+func generateHeight() *Height {
 	maxHeight := util.Roll(minAdultHeight, maxAdultHeight+1)
 	maxBabyHeight := maxHeight / 4
 	if maxBabyHeight < minBabyHeight {
 		maxBabyHeight = minBabyHeight
 	}
 	currentHeight := util.Roll(minBabyHeight, maxBabyHeight+1)
-	return &heightCM{
-		current: currentHeight,
-		max:     maxHeight,
+	return &Height{
+		Current: currentHeight,
+		Max:     maxHeight,
 	}
 }
 
-func generateWeight() *weight {
+func generateWeight() *Weight {
 	idealWeight := util.Roll(minAdultIdealWeight, maxAdultIdealWeight+1)
 	maxBabyWeight := idealWeight / 4
 	if maxBabyWeight < minBabyWeight {
 		maxBabyWeight = minBabyWeight + 1
 	}
 	currentWeight := util.Roll(minBabyWeight, maxBabyWeight+1)
-	return &weight{
-		current: currentWeight,
-		ideal:   idealWeight,
-	}
-}
-
-func generateMaturity() *maturity {
-	br := util.Roll(minMaturityBaseRate, maxMaturityBaseRate+1)
-	return &maturity{
-		current:      0,
-		baseRate:     util.Percent(br),
-		rateModifier: 0,
+	return &Weight{
+		Current: currentWeight,
+		Ideal:   idealWeight,
 	}
 }

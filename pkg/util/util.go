@@ -1,6 +1,9 @@
 package util
 
-import "math"
+import (
+	"fmt"
+	"math"
+)
 
 type Percent int
 
@@ -12,4 +15,8 @@ func GetPercent(part int, total int) Percent {
 // What is p% of n?
 func WhatIsPercentOf(p Percent, total int) int {
 	return int(math.Round(float64(total) * float64(p) / 100))
+}
+
+func (p Percent) String() string {
+	return fmt.Sprintf("%d%", p)
 }

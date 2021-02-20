@@ -1,62 +1,32 @@
 package human
 
-import "aah/pkg/util"
-
-const (
-	minImmunityAttrition = 0
-	maxImmunityAttrition = 50
-)
-
-type body struct {
-	immunity *immunity
-	organs   []*organ
-	height   *heightCM
-	weightKg *weight
-	maturity *maturity
+type Body struct {
+	Immunity *Immunity
+	Organs   []*Organ
+	HeightCM *Height
+	weightKg *Weight
+	maturity *Maturity
 }
 
-type immunity struct {
-	currentPercentage int
-	maxPercentage     int
-	attritionModifier int
-	baseAttrition     int
-}
-
-func generateBody() *body {
-	body := &body{
-		immunity: generateImmunity(),
-		height:   generateHeight(),
+func generateBody() *Body {
+	body := &Body{
+		Immunity: generateImmunity(),
+		HeightCM: generateHeight(),
 		weightKg: generateWeight(),
 		maturity: generateMaturity(),
 	}
 	organs := generateOrgans(body)
-	body.organs = organs
+	body.Organs = organs
 	return body
 }
 
-func generateImmunity() *immunity {
-	max := util.Roll(11, 100)
-	current := util.Roll(10, max)
-
-	baseAttrition := util.Roll(minImmunityAttrition, maxImmunityAttrition)
-	return &immunity{
-		currentPercentage: current,
-		maxPercentage:     max,
-		attritionModifier: 0,
-		baseAttrition:     baseAttrition,
-	}
-}
-
-func (b *body) tick() {
-	cMaturity := b.maturity.current
-	for _, organ := range b.organs {
-		if cMaturity < 100 {
+func (b *Body) tick() {
+	for _, organ := range b.Organs {
+		if b.maturity.Current < 100 {
 			organ.grow()
 		}
+		organ.tickHealth()
 	}
-	b.maturity.current += b.maturity.currentRate()
-	if b.maturity.current >= 100 {
-		b.maturity.rateModifier = -b.maturity.baseRate
-	}
-
+	b.Immunity.tick(b.maturity.Current)
+	b.maturity.tick()
 }
