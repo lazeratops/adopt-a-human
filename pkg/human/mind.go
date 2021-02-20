@@ -3,41 +3,49 @@ package human
 import "aah/pkg/util"
 
 const (
-	minResilience = 10
-	maxResilience = 1000
+	minMentalProperty = 10
+	maxMentalProperty = 1000
 )
 
+type MentalProperty struct {
+	Base    int
+	Current int
+}
 type Mind struct {
-	BaseResilience    int
-	CurrentResilience int
-	Maturity          *Maturity
+	Resilience *MentalProperty
+	Kindness   *MentalProperty
+	Stress     *MentalProperty
+	Maturity   *Maturity
 }
 
 func generateMind() *Mind {
-	baseResilience, currentResilience := generateResilience()
 	return &Mind{
-		BaseResilience:    baseResilience,
-		CurrentResilience: currentResilience,
-		Maturity:          generateMaturity(),
+		Resilience: generate(),
+		Kindness:   generate(),
+		Stress:     generate(),
+		Maturity:   generateMaturity(),
 	}
 }
 
-func generateResilience() (int, int) {
-	base := util.Roll(minResilience, maxResilience)
+func generate() *MentalProperty {
+	base := util.Roll(minMentalProperty, maxMentalProperty)
 
-	maxBabyResilience := maxResilience / 10
-	if maxBabyResilience < minResilience {
-		maxBabyResilience = minResilience
+	maxBabyResilience := maxMentalProperty / 10
+	if maxBabyResilience < minMentalProperty {
+		maxBabyResilience = minMentalProperty
 	}
-	current := util.Roll(minResilience, maxBabyResilience+1)
-	return base, current
+	current := util.Roll(minMentalProperty, maxBabyResilience+1)
+	return &MentalProperty{
+		Base:    base,
+		Current: current,
+	}
 }
 
 func (m *Mind) tick() {
 	if m.Maturity.Current < 100 {
-		// What is m.Maturity.Current percentage of BaselineResilience?
-		inc := util.WhatIsPercentOf(m.Maturity.Current, m.BaseResilience)
-		m.CurrentResilience += inc
+		m.Resilience.Current += util.WhatIsPercentOf(m.Maturity.Current, m.Resilience.Base)
+		m.Kindness.Current += util.WhatIsPercentOf(m.Maturity.Current, m.Kindness.Base)
+		m.Stress.Current += util.WhatIsPercentOf(m.Maturity.Current, m.Stress.Base)
 	}
 
 	m.Maturity.tick()

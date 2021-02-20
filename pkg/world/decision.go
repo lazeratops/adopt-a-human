@@ -25,12 +25,12 @@ var decisions = []decision{
 				// Baseline resilience goes down by 1-5%, but no physical damage
 				downPerc := util.Roll(1, 6)
 				mind := h.Mind()
-				down := util.WhatIsPercentOf(util.Percent(downPerc), mind.BaseResilience)
-				mind.BaseResilience -= down
+				down := util.WhatIsPercentOf(util.Percent(downPerc), mind.Resilience.Base)
+				mind.Resilience.Base -= down
 				reportResult(fmt.Sprintf("They suffered no immediate physical damage. However, their base resilience went down by %d", down))
 			},
 
-			"No, crawling out on their own will teach them mental toughness": func(h *human.Human) {
+			"No, crawling out on their own will teach them mental toughness.": func(h *human.Human) {
 				reportResult(fmt.Sprintf("You left your human in the hole. %s", resultStr))
 
 				body := h.Body()
@@ -47,16 +47,60 @@ var decisions = []decision{
 
 				// Max immunity goes up a little, maybe
 				immunityInc := util.Roll(0, 10)
-				body.Immunity.Max += util.Percent(immunityInc)
-				body.Immunity.Current += util.Percent(immunityInc)
+				body.Immunity.Max += immunityInc
+				body.Immunity.Current += immunityInc
 				reportResult(fmt.Sprintf("Their immunity increased by %v", immunityInc))
 
 				// But baseline resilience goes up by 5-10%
 				upPerc := util.Roll(5, 11)
 				mind := h.Mind()
-				up := util.WhatIsPercentOf(util.Percent(upPerc), mind.BaseResilience)
-				mind.BaseResilience += up
+				up := util.WhatIsPercentOf(util.Percent(upPerc), mind.Resilience.Base)
+				mind.Resilience.Base += up
 				reportResult(fmt.Sprintf("Their baseline mental resilience increased by %v", up))
+			},
+		},
+	},
+	{
+		query: "Your human kicked a puppy. How do you react?",
+		choices: choices{
+			"With a stern lecture about how to treat other animals.": func(h *human.Human) {
+				reportResult(fmt.Sprintf("You gave your human a stern lecture about how to treat other animals. %s", resultStr))
+				// Baseline kindenss goes up by 1-10%
+				perc := util.Roll(1, 11)
+				mind := h.Mind()
+				res := util.WhatIsPercentOf(util.Percent(perc), mind.Kindness.Base)
+				mind.Kindness.Base += res
+				reportResult(fmt.Sprintf("Their base kindness increased by %v", util.Percent(perc)))
+			},
+
+			"With capital punishment.": func(h *human.Human) {
+				reportResult(fmt.Sprintf("You physically punished your human. There's no animal beating allowed around here! %s", resultStr))
+				mind := h.Mind()
+
+				// Baseline kindenss goes up by 1-5%
+				perc := util.Roll(1, 6)
+				res := util.WhatIsPercentOf(util.Percent(perc), mind.Kindness.Base)
+				mind.Kindness.Base += res
+				reportResult(fmt.Sprintf("Their base kindness increased by %v", util.Percent(perc)))
+
+				// Current stress goes up by 0-10%
+				perc = util.Roll(0, 11)
+				res = util.WhatIsPercentOf(util.Percent(perc), mind.Stress.Base)
+				mind.Stress.Current += res
+				reportResult(fmt.Sprintf("Their stress increased by %v", util.Percent(perc)))
+
+				// If their resilience is lower then their stress, there are more consequences
+				if mind.Resilience.Current < mind.Stress.Current {
+					body := h.Body()
+
+					// Base immunity goes down by 0-5% (chronic stress effect)
+					perc = util.Roll(0, 5)
+					body.Immunity.Max -= util.WhatIsPercentOf(util.Percent(perc), body.Immunity.Max)
+					if body.Immunity.Max < body.Immunity.Current {
+						body.Immunity.Current = body.Immunity.Max
+					}
+					reportResult(fmt.Sprintf("The stress of the punishment was too much for them. Their immunity decreased by %v", util.Percent(perc)))
+				}
 			},
 		},
 	},

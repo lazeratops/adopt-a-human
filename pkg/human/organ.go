@@ -80,9 +80,8 @@ func generateOrgans(body *Body) []*Organ {
 func (o *Organ) generateAndSetHealths() {
 	o.maxHealth = util.Roll(50, 250)
 	maxBabyHealth := util.WhatIsPercentOf(25, o.maxHealth)
-	o.currentHealth = util.Roll(5, maxBabyHealth + 1)
+	o.currentHealth = util.Roll(5, maxBabyHealth+1)
 }
-
 
 func (o *Organ) generateAndSetWeight(minIdeal int, maxIdeal int) {
 	idealWeight := util.Roll(minIdeal, maxIdeal)
@@ -104,7 +103,7 @@ func (o *Organ) generateAndSetGrowthRate(baseBodyMaturityRate util.Percent, idea
 		bgr = 1
 	}
 	o.baseGrowthRate = bgr
-	// But when the human is at its youngest, it grows 50% faster than its base rate
+	// But when the human is at its youngest, it grows 50% faster than its Base rate
 	o.growthRateModifier = util.WhatIsPercentOf(util.Percent(50), o.baseGrowthRate)
 	return nil
 }

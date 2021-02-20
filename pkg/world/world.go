@@ -5,8 +5,6 @@ import (
 	"aah/pkg/util"
 	"fmt"
 	"github.com/sirupsen/logrus"
-	"math/rand"
-	"time"
 )
 
 type World struct {
@@ -55,7 +53,6 @@ func (w *World) tick() {
 }
 
 func pickDecision() decision {
-	rand.Seed(time.Now().UTC().UnixNano())
 	idx := util.Roll(0, len(decisions))
 	return decisions[idx]
 }

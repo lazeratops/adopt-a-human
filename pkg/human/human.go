@@ -4,9 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	log "github.com/sirupsen/logrus"
-	"math/rand"
 	"strings"
-	"time"
 )
 
 type Human struct {
@@ -17,7 +15,6 @@ type Human struct {
 }
 
 func New() *Human {
-	rand.Seed(time.Now().UTC().UnixNano())
 	return &Human{
 		Name: "",
 		Age:  0,

@@ -18,5 +18,5 @@ func WhatIsPercentOf(p Percent, total int) int {
 }
 
 func (p Percent) String() string {
-	return fmt.Sprintf("%d%", p)
+	return fmt.Sprintf("%d%%", p)
 }

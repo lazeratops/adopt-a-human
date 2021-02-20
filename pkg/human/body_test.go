@@ -46,7 +46,7 @@ func TestOrganGrowthRateGeneration(t *testing.T) {
 	t.Run("TestOrganGrowthRateGeneration", func(t *testing.T) {
 		for _, tc := range testCases {
 			tc := tc
-			t.Run(fmt.Sprintf("Body base growth rate: %d, Ideal Weight: %d", tc.bodyBaseGrowthRate, tc.idealWeightG), func(t *testing.T) {
+			t.Run(fmt.Sprintf("Body Base growth rate: %d, Ideal Weight: %d", tc.bodyBaseGrowthRate, tc.idealWeightG), func(t *testing.T) {
 				organ := &Organ{}
 				organ.generateAndSetGrowthRate(tc.bodyBaseGrowthRate, tc.idealWeightG)
 				require.EqualValues(t, tc.wantOrganBaseGrowthRate, organ.baseGrowthRate)
