@@ -1,4 +1,4 @@
-package events
+package util
 
 import (
 	"fmt"
@@ -29,16 +29,14 @@ func TestRoll(t *testing.T) {
 			max: -4,
 		},
 	}
-
-	for _, tc := range testCases {
-		tc := tc
-		t.Run("TestRoll", func(t *testing.T) {
+	t.Run("TestRoll", func(t *testing.T) {
+		for _, tc := range testCases {
+			tc := tc
 			t.Run(fmt.Sprintf("min: %d, max: %d", tc.min, tc.max), func(t *testing.T) {
 				t.Parallel()
 				gotRand := Roll(tc.min, tc.max)
 				require.True(t, tc.min <= gotRand && tc.max > gotRand)
 			})
-		})
-
-	}
+		}
+	})
 }

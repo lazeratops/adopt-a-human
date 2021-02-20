@@ -1,6 +1,6 @@
 package human
 
-import "aah/pkg/events"
+import "aah/pkg/util"
 
 const (
 	minBabyHeight       = 30
@@ -24,25 +24,25 @@ type weight struct {
 }
 
 type maturity struct {
-	currentPercent int
-	baseRate       int
-	modifier       int
+	current      util.Percent
+	baseRate     util.Percent
+	rateModifier util.Percent
 }
 
-func (m *maturity) currentRate() int {
-	return m.baseRate + m.modifier
+func (m *maturity) currentRate() util.Percent {
+	return m.baseRate + m.rateModifier
 }
 
 type mind struct {
 }
 
 func generateHeight() *heightCM {
-	maxHeight := events.Roll(minAdultHeight, maxAdultHeight)
+	maxHeight := util.Roll(minAdultHeight, maxAdultHeight+1)
 	maxBabyHeight := maxHeight / 4
 	if maxBabyHeight < minBabyHeight {
 		maxBabyHeight = minBabyHeight
 	}
-	currentHeight := events.Roll(minBabyHeight, maxBabyHeight+1)
+	currentHeight := util.Roll(minBabyHeight, maxBabyHeight+1)
 	return &heightCM{
 		current: currentHeight,
 		max:     maxHeight,
@@ -50,12 +50,12 @@ func generateHeight() *heightCM {
 }
 
 func generateWeight() *weight {
-	idealWeight := events.Roll(minAdultIdealWeight, maxAdultIdealWeight)
+	idealWeight := util.Roll(minAdultIdealWeight, maxAdultIdealWeight+1)
 	maxBabyWeight := idealWeight / 4
 	if maxBabyWeight < minBabyWeight {
 		maxBabyWeight = minBabyWeight + 1
 	}
-	currentWeight := events.Roll(minBabyWeight, maxBabyWeight+1)
+	currentWeight := util.Roll(minBabyWeight, maxBabyWeight+1)
 	return &weight{
 		current: currentWeight,
 		ideal:   idealWeight,
@@ -63,10 +63,10 @@ func generateWeight() *weight {
 }
 
 func generateMaturity() *maturity {
-	baseRate := events.Roll(minMaturityBaseRate, maxMaturityBaseRate)
+	br := util.Roll(minMaturityBaseRate, maxMaturityBaseRate+1)
 	return &maturity{
-		currentPercent: 0,
-		baseRate:       baseRate,
-		modifier:       0,
+		current:      0,
+		baseRate:     util.Percent(br),
+		rateModifier: 0,
 	}
 }
