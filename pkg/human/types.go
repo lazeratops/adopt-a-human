@@ -39,10 +39,10 @@ type mind struct {
 func generateHeight() *heightCM {
 	maxHeight := events.Roll(minAdultHeight, maxAdultHeight)
 	maxBabyHeight := maxHeight / 4
-	if maxBabyHeight > minBabyHeight {
+	if maxBabyHeight < minBabyHeight {
 		maxBabyHeight = minBabyHeight
 	}
-	currentHeight := events.Roll(30, maxBabyHeight)
+	currentHeight := events.Roll(minBabyHeight, maxBabyHeight+1)
 	return &heightCM{
 		current: currentHeight,
 		max:     maxHeight,
@@ -52,10 +52,10 @@ func generateHeight() *heightCM {
 func generateWeight() *weight {
 	idealWeight := events.Roll(minAdultIdealWeight, maxAdultIdealWeight)
 	maxBabyWeight := idealWeight / 4
-	if maxBabyWeight > minBabyWeight {
-		maxBabyWeight = minBabyWeight
+	if maxBabyWeight < minBabyWeight {
+		maxBabyWeight = minBabyWeight + 1
 	}
-	currentWeight := events.Roll(1, maxBabyWeight)
+	currentWeight := events.Roll(minBabyWeight, maxBabyWeight+1)
 	return &weight{
 		current: currentWeight,
 		ideal:   idealWeight,
