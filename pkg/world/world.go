@@ -40,10 +40,11 @@ func (w *World) Run() {
 			break
 		}
 	}
-	fmt.Println()
+	fmt.Println(colorReset)
 	fmt.Println("~~~~~~~~~~~~~~~~~~~")
 	fmt.Println("~~~~~GAME OVER~~~~~")
 	fmt.Println("~~~~~~~~~~~~~~~~~~~")
+	fmt.Printf(colorReset)
 	fmt.Printf("\nYour human died at %d years of age", w.human.Age)
 	fmt.Printf("\nCause Of Death: %v", w.human.CauseOfDeath())
 	fmt.Println()

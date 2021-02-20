@@ -72,7 +72,7 @@ func (d *decision) decide() (func(h *human.Human), error) {
 	for label, _ := range d.choices {
 		selections = append(selections, label)
 	}
-	selection, err := PromptSelection(d.query, selections)
+	selection, err := promptSelection(d.query, selections)
 	if err != nil {
 		return nil, fmt.Errorf("failed to make a decision: %w", err)
 	}

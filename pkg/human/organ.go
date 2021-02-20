@@ -78,17 +78,11 @@ func generateOrgans(body *Body) []*Organ {
 }
 
 func (o *Organ) generateAndSetHealths() {
-	o.maxHealth = o.getRandomHealth(-1)
+	o.maxHealth = util.Roll(50, 250)
 	maxBabyHealth := util.WhatIsPercentOf(25, o.maxHealth)
-	o.currentHealth = o.getRandomHealth(maxBabyHealth + 1)
+	o.currentHealth = util.Roll(5, maxBabyHealth + 1)
 }
 
-func (o *Organ) getRandomHealth(max int) int {
-	if max == -1 {
-		max = 100
-	}
-	return util.Roll(1, max+1)
-}
 
 func (o *Organ) generateAndSetWeight(minIdeal int, maxIdeal int) {
 	idealWeight := util.Roll(minIdeal, maxIdeal)
@@ -124,6 +118,10 @@ func (o *Organ) grow() {
 }
 
 func (o *Organ) tickHealth() {
+	if o.currentHealth <= 0 {
+		// This organ is already dead
+		return
+	}
 	if o.currentHealth < o.maxHealth && o.body.maturity.Current < 100 {
 		// Increase health by Current Maturity percentage of Max health
 		o.currentHealth += util.WhatIsPercentOf(o.body.maturity.Current, o.maxHealth)
