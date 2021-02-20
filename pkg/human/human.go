@@ -2,17 +2,17 @@ package human
 
 type Human struct {
 	Name string
-	Age int
+	Age  int
 	mind *mind
 	body *body
 }
 
 func New() *Human {
 	return &Human{
-		Name:            "",
-		Age:             0,
-		mind:            &mind{},
-		body:            generateBody(),
+		Name: "",
+		Age:  0,
+		mind: &mind{},
+		body: generateBody(),
 	}
 }
 

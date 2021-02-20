@@ -14,44 +14,43 @@ const (
 )
 
 type organTemplate struct {
-	name string
+	name     string
 	quantity int
 }
 
-
 type organ struct {
-	kind organKind
-	quantity int
-	weightG *weight
+	kind          organKind
+	quantity      int
+	weightG       *weight
 	currentHealth int
-	maxHealth int
+	maxHealth     int
 }
 
 func generateOrgans() []*organ {
 	heart := organ{
-		kind:          OrganHeart,
-		quantity:      1,
+		kind:     OrganHeart,
+		quantity: 1,
 	}
 	heart.generateAndSetHealths()
 
 	brain := organ{
-		kind:          OrganBrain,
-		quantity:      1,
+		kind:     OrganBrain,
+		quantity: 1,
 	}
 	brain.generateAndSetHealths()
 
 	kidneys := organ{
-		kind:          OrganKidneys,
-		quantity:      2,
+		kind:     OrganKidneys,
+		quantity: 2,
 	}
 	kidneys.generateAndSetHealths()
 
 	lungs := organ{
-		kind:          OrganLungs,
-		quantity:      2,
+		kind:     OrganLungs,
+		quantity: 2,
 	}
 	lungs.generateAndSetHealths()
-	return []*organ { &heart, &brain, &kidneys, &lungs }
+	return []*organ{&heart, &brain, &kidneys, &lungs}
 }
 
 func (o *organ) generateAndSetHealths() {
@@ -68,7 +67,7 @@ func (o *organ) generateAndSetWeight(minIdeal int, maxIdeal int) {
 	currentWeight := events.Roll(1, maxBabyWeight)
 	o.weightG = &weight{
 		current: currentWeight,
-		ideal:     idealWeight,
+		ideal:   idealWeight,
 	}
 }
 

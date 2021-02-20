@@ -4,12 +4,12 @@ import human2 "aah/pkg/human"
 
 type World struct {
 	human *human2.Human
-	year int
+	year  int
 }
 
 var W *World
 
-func New() *World{
+func New() *World {
 	return &World{
 		human: human2.New(),
 		year:  2021,

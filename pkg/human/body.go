@@ -3,20 +3,21 @@ package human
 import "aah/pkg/events"
 
 const (
-	minImmunityAttrition = -50
+	minImmunityAttrition = 0
 	maxImmunityAttrition = 50
 )
+
 type body struct {
 	immunity *immunity
-	organs []*organ
-	height *heightCM
+	organs   []*organ
+	height   *heightCM
 	weightKg *weight
 	maturity *maturity
 }
 
 type immunity struct {
 	currentPercentage int
-	maxPercentage               int
+	maxPercentage     int
 	attritionModifier int
 	baseAttrition     int
 }
@@ -26,30 +27,25 @@ func generateBody() *body {
 
 	return &body{
 		immunity: generateImmunity(),
-		height: generateHeight(),
+		height:   generateHeight(),
 		weightKg: generateWeight(),
 		maturity: generateMaturity(),
-		organs:          organs,
+		organs:   organs,
 	}
 }
 
 func generateImmunity() *immunity {
-	max := events.Roll(10, 100)
+	max := events.Roll(11, 100)
 	current := events.Roll(10, max)
 
-	minAttrition := events.Roll(minImmunityAttrition, 0)
-	maxAttrition := events.Roll(0, maxImmunityAttrition)
-
-	realMaxAttrition := events.Roll(minAttrition, maxAttrition)
-	baseAttrition := events.Roll(minAttrition, realMaxAttrition)
+	baseAttrition := events.Roll(minImmunityAttrition, maxImmunityAttrition)
 	return &immunity{
 		currentPercentage: current,
-		maxPercentage:               max,
+		maxPercentage:     max,
 		attritionModifier: 0,
 		baseAttrition:     baseAttrition,
 	}
 }
-
 
 func (b *body) tick() {
 	cMaturity := b.maturity.currentPercent
@@ -61,4 +57,3 @@ func (b *body) tick() {
 	b.maturity.currentPercent += b.maturity.currentRate()
 
 }
-

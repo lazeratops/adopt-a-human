@@ -6,4 +6,3 @@ func main() {
 	world := world2.New()
 	world.Run()
 }
-

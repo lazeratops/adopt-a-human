@@ -3,31 +3,30 @@ package human
 import "aah/pkg/events"
 
 const (
-	minBabyHeight = 30
-	minAdultHeight = 50
-	maxAdultHeight = 213
-	minBabyWeight = 1
+	minBabyHeight       = 30
+	minAdultHeight      = 50
+	maxAdultHeight      = 213
+	minBabyWeight       = 1
 	minAdultIdealWeight = 20
 	maxAdultIdealWeight = 150
 	minMaturityBaseRate = 1
 	maxMaturityBaseRate = 5
 )
 
-
 type heightCM struct {
 	current int
-	max int
+	max     int
 }
 
 type weight struct {
 	current int
-	ideal int
+	ideal   int
 }
 
 type maturity struct {
 	currentPercent int
-	baseRate int
-	modifier int
+	baseRate       int
+	modifier       int
 }
 
 func (m *maturity) currentRate() int {
@@ -35,7 +34,6 @@ func (m *maturity) currentRate() int {
 }
 
 type mind struct {
-
 }
 
 func generateHeight() *heightCM {
@@ -51,7 +49,6 @@ func generateHeight() *heightCM {
 	}
 }
 
-
 func generateWeight() *weight {
 	idealWeight := events.Roll(minAdultIdealWeight, maxAdultIdealWeight)
 	maxBabyWeight := idealWeight / 4
@@ -61,7 +58,7 @@ func generateWeight() *weight {
 	currentWeight := events.Roll(1, maxBabyWeight)
 	return &weight{
 		current: currentWeight,
-		ideal:     idealWeight,
+		ideal:   idealWeight,
 	}
 }
 
@@ -70,6 +67,6 @@ func generateMaturity() *maturity {
 	return &maturity{
 		currentPercent: 0,
 		baseRate:       baseRate,
-		modifier:    0,
+		modifier:       0,
 	}
 }
