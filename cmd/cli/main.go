@@ -9,6 +9,7 @@ import (
 
 func main() {
 	rand.Seed(time.Now().UTC().UnixNano())
+	world.Init()
 	if err := world.RootCmd.Execute(); err != nil {
 		logrus.WithError(err).Error("failed to run simulation")
 	}

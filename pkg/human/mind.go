@@ -1,10 +1,12 @@
 package human
 
-import "aah/pkg/util"
+import (
+	"aah/pkg/util"
+)
 
 const (
-	minMentalProperty = 10
-	maxMentalProperty = 1000
+	minMentalProperty = 100
+	maxMentalProperty = 10000
 )
 
 type MentalProperty struct {
@@ -15,26 +17,30 @@ type Mind struct {
 	Resilience *MentalProperty
 	Kindness   *MentalProperty
 	Stress     *MentalProperty
+	Agreeableness *MentalProperty
+	Stubbornness *MentalProperty
 	Maturity   *Maturity
 }
 
 func generateMind() *Mind {
 	return &Mind{
-		Resilience: generate(),
-		Kindness:   generate(),
-		Stress:     generate(),
-		Maturity:   generateMaturity(),
+		Resilience:    generateMentalProperty(),
+		Kindness:      generateMentalProperty(),
+		Stress:        generateMentalProperty(),
+		Agreeableness: generateMentalProperty(),
+		Stubbornness:  generateMentalProperty(),
+		Maturity:      generateMaturity(),
 	}
 }
 
-func generate() *MentalProperty {
+func generateMentalProperty() *MentalProperty {
 	base := util.Roll(minMentalProperty, maxMentalProperty)
 
-	maxBabyResilience := maxMentalProperty / 10
-	if maxBabyResilience < minMentalProperty {
-		maxBabyResilience = minMentalProperty
+	maxBabyMentalProperty := maxMentalProperty / 10
+	if maxBabyMentalProperty < minMentalProperty {
+		maxBabyMentalProperty = minMentalProperty
 	}
-	current := util.Roll(minMentalProperty, maxBabyResilience+1)
+	current := util.Roll(minMentalProperty, maxBabyMentalProperty+1)
 	return &MentalProperty{
 		Base:    base,
 		Current: current,
@@ -42,11 +48,64 @@ func generate() *MentalProperty {
 }
 
 func (m *Mind) tick() {
-	if m.Maturity.Current < 100 {
-		m.Resilience.Current += util.WhatIsPercentOf(m.Maturity.Current, m.Resilience.Base)
-		m.Kindness.Current += util.WhatIsPercentOf(m.Maturity.Current, m.Kindness.Base)
-		m.Stress.Current += util.WhatIsPercentOf(m.Maturity.Current, m.Stress.Base)
+	m.Resilience.tick(m.Maturity.Current, m.Maturity.currentRate())
+	m.Kindness.tick(m.Maturity.Current, m.Maturity.currentRate())
+	m.Stress.tick(m.Maturity.Current, m.Maturity.currentRate())
+	m.Agreeableness.tick(m.Maturity.Current, m.Maturity.currentRate())
+	m.Stubbornness.tick(m.Maturity.Current, m.Maturity.currentRate())
+	m.Maturity.tick()
+}
+
+func (m *Mind) StateReport() string {
+	var state string
+	if m.Agreeableness.Current > m.Stubbornness.Current {
+		state += "They are more agreeable than they are stubborn."
+	} else if m.Agreeableness.Current < m.Stubbornness.Current {
+		state += "They are more stubborn than they are agreeable."
+	} else {
+		state += "They are as agreeable as they are stubborn."
+	}
+	if m.Resilience.Current > m.Stress.Current {
+		state += " They are more resilient than they are stressed."
+	} else if m.Resilience.Current < m.Stress.Current {
+		state += " They are more stressed than they are resilient."
+	} else {
+		state += " They are as resilient as they are stressed."
 	}
 
-	m.Maturity.tick()
+	return state
+}
+
+func (m *MentalProperty) AddBase(modifier int) {
+	m.Base += modifier
+}
+
+func (m *MentalProperty) AddCurrent(modifier int) {
+	m.Current += modifier
+}
+
+
+func (m *MentalProperty) SubBase(modifier int) {
+	new := m.Base - modifier
+	if new < 0 {
+		new = 0
+	}
+	m.Base = new
+}
+
+func (m *MentalProperty) SubCurrent(modifier int) {
+	new := m.Current - modifier
+	if new < 0 {
+		new = 0
+	}
+	m.Current = new
+}
+
+func (m *MentalProperty) tick(maturityCurrent, rate util.Percent) {
+	if maturityCurrent < 100 {
+		m.Current += util.WhatIsPercentOf(rate, m.Base)
+	}
+	if m.Current > m.Base {
+		m.Current--
+	}
 }

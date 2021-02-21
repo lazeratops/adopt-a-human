@@ -2,6 +2,11 @@ package human
 
 import "aah/pkg/util"
 
+const (
+	minMaturityBaseRate = 1
+	maxMaturityBaseRate = 5
+)
+
 type Maturity struct {
 	Current      util.Percent
 	BaseRate     util.Percent
@@ -26,4 +31,23 @@ func (m *Maturity) tick() {
 	if m.Current >= 100 && m.RateModifier > 0 {
 		m.RateModifier = 0
 	}
+}
+
+func (m *Maturity) Descriptor() string {
+	if m.Current < 10 {
+		return "extremely immature"
+	}
+	if m.Current < 25 {
+		return "very immature"
+	}
+	if m.Current < 50 {
+		return "pretty immature"
+	}
+	if m.Current < 75 {
+		return "progressing to maturity"
+	}
+	if m.Current < 100 {
+		return "nearly mature"
+	}
+	return "completely mature"
 }

@@ -15,8 +15,8 @@ func TestGenerateHuman(t *testing.T) {
 		body := h.body
 		require.True(t, body.Immunity.Current <= body.Immunity.Max)
 		for _, o := range body.Organs {
-			require.True(t, o.currentHealth > 0)
-			require.True(t, o.currentHealth <= o.maxHealth)
+			require.True(t, o.CurrentHealth > 0)
+			require.True(t, o.CurrentHealth <= o.maxHealth)
 			require.True(t, o.weightG.Current <= o.weightG.Ideal)
 			require.True(t, o.baseGrowthRate > 0)
 		}

@@ -1,6 +1,9 @@
 package human
 
-import "aah/pkg/util"
+import (
+	"aah/pkg/util"
+	log "github.com/sirupsen/logrus"
+)
 
 const (
 	minImmunityAttrition = 0
@@ -35,11 +38,24 @@ func (i *Immunity) tick(currentMaturity util.Percent) {
 		off := util.WhatIsPercentOf(currentMaturity, i.Max)
 		i.Current = off
 	}
-	i.Current -= i.AttritionModifier
+	i.subImmunity(i.currentAttrition())
 	if i.AttritionModifier != 0 {
 		i.AttritionModifierDuration--
 		if i.AttritionModifierDuration == 0 {
 			i.AttritionModifier = 0
 		}
 	}
+}
+
+func (i *Immunity) currentAttrition() int {
+	return i.BaseAttrition + i.AttritionModifier
+}
+
+func (i *Immunity) subImmunity(amount int) {
+	log.WithField("amount", amount).Debug("subtracting immunity")
+	new := i.Current - amount
+	if new < 0 {
+		new = 0
+	}
+	i.Current = new
 }

@@ -27,6 +27,8 @@ func (b *Body) tick() {
 		}
 		organ.tickHealth()
 	}
+	b.weightKg.tick(b.maturity.Current, b.maturity.currentRate())
+	b.HeightCM.tick(b.maturity.Current, b.maturity.currentRate())
 	b.Immunity.tick(b.maturity.Current)
 	b.maturity.tick()
 }
