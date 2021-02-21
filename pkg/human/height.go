@@ -3,10 +3,9 @@ package human
 import "aah/pkg/util"
 
 const (
-	minBabyHeight       = 30
-	minAdultHeight      = 50
-	maxAdultHeight      = 213
-
+	minBabyHeight  = 30
+	minAdultHeight = 50
+	maxAdultHeight = 213
 )
 
 type Height struct {
@@ -27,8 +26,7 @@ func generateHeight() *Height {
 	}
 }
 
-
-func(h *Height) tick(currentMaturity, rate util.Percent) {
+func (h *Height) tick(currentMaturity, rate util.Percent) {
 	if currentMaturity < 100 {
 		h.Current += util.WhatIsPercentOf(rate, h.Ideal)
 	}

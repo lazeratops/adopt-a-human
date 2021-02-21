@@ -5,7 +5,7 @@ type Body struct {
 	Organs   []*Organ
 	HeightCM *Height
 	weightKg *Weight
-	maturity *Maturity
+	Maturity *Maturity
 }
 
 func generateBody() *Body {
@@ -13,7 +13,7 @@ func generateBody() *Body {
 		Immunity: generateImmunity(),
 		HeightCM: generateHeight(),
 		weightKg: generateWeight(),
-		maturity: generateMaturity(),
+		Maturity: generateMaturity(),
 	}
 	organs := generateOrgans(body)
 	body.Organs = organs
@@ -22,13 +22,13 @@ func generateBody() *Body {
 
 func (b *Body) tick() {
 	for _, organ := range b.Organs {
-		if b.maturity.Current < 100 {
+		if b.Maturity.Current < 100 {
 			organ.grow()
 		}
 		organ.tickHealth()
 	}
-	b.weightKg.tick(b.maturity.Current, b.maturity.currentRate())
-	b.HeightCM.tick(b.maturity.Current, b.maturity.currentRate())
-	b.Immunity.tick(b.maturity.Current)
-	b.maturity.tick()
+	b.weightKg.tick(b.Maturity.Current, b.Maturity.currentRate())
+	b.HeightCM.tick(b.Maturity.Current, b.Maturity.currentRate())
+	b.Immunity.tick(b.Maturity.Current)
+	b.Maturity.tick()
 }

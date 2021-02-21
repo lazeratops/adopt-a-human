@@ -10,30 +10,31 @@ const (
 )
 
 type MentalProperty struct {
+	Name    string
 	Base    int
 	Current int
 }
 type Mind struct {
-	Resilience *MentalProperty
-	Kindness   *MentalProperty
-	Stress     *MentalProperty
+	Resilience    *MentalProperty
+	Kindness      *MentalProperty
+	Stress        *MentalProperty
 	Agreeableness *MentalProperty
-	Stubbornness *MentalProperty
-	Maturity   *Maturity
+	Stubbornness  *MentalProperty
+	Maturity      *Maturity
 }
 
 func generateMind() *Mind {
 	return &Mind{
-		Resilience:    generateMentalProperty(),
-		Kindness:      generateMentalProperty(),
-		Stress:        generateMentalProperty(),
-		Agreeableness: generateMentalProperty(),
-		Stubbornness:  generateMentalProperty(),
+		Resilience:    generateMentalProperty("Resilience"),
+		Kindness:      generateMentalProperty("Kindness"),
+		Stress:        generateMentalProperty("Stress"),
+		Agreeableness: generateMentalProperty("Agreeableness"),
+		Stubbornness:  generateMentalProperty("Stubbornness"),
 		Maturity:      generateMaturity(),
 	}
 }
 
-func generateMentalProperty() *MentalProperty {
+func generateMentalProperty(name string) *MentalProperty {
 	base := util.Roll(minMentalProperty, maxMentalProperty)
 
 	maxBabyMentalProperty := maxMentalProperty / 10
@@ -42,6 +43,7 @@ func generateMentalProperty() *MentalProperty {
 	}
 	current := util.Roll(minMentalProperty, maxBabyMentalProperty+1)
 	return &MentalProperty{
+		Name:    name,
 		Base:    base,
 		Current: current,
 	}
@@ -83,7 +85,6 @@ func (m *MentalProperty) AddBase(modifier int) {
 func (m *MentalProperty) AddCurrent(modifier int) {
 	m.Current += modifier
 }
-
 
 func (m *MentalProperty) SubBase(modifier int) {
 	new := m.Base - modifier

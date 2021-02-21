@@ -7,18 +7,19 @@ import (
 	"math"
 )
 
-type organKind string
+type OrganKind string
 
 const (
-	OrganHeart  organKind = "heart"
-	OrganLung   organKind = "lung"
-	OrganKidney organKind = "kidney"
-	OrganBrain  organKind = "brain"
+	OrganHeart    OrganKind = "heart"
+	OrganLung     OrganKind = "lung"
+	OrganKidney   OrganKind = "kidney"
+	OrganBrain    OrganKind = "brain"
+	OrganStomacch OrganKind = "stomach"
 )
 
 type Organ struct {
 	body               *Body
-	kind               organKind
+	Kind               OrganKind
 	weightG            *Weight
 	CurrentHealth      int
 	maxHealth          int
@@ -28,54 +29,62 @@ type Organ struct {
 
 func generateOrgans(body *Body) []*Organ {
 	heart := Organ{
-		kind: OrganHeart,
+		Kind: OrganHeart,
 		body: body,
 	}
 	heart.generateAndSetHealths()
 	heart.generateAndSetWeight(100, 500)
-	heart.generateAndSetGrowthRate(body.maturity.BaseRate, heart.weightG.Ideal)
+	heart.generateAndSetGrowthRate(body.Maturity.BaseRate, heart.weightG.Ideal)
 
 	brain := Organ{
-		kind: OrganBrain,
+		Kind: OrganBrain,
 		body: body,
 	}
 	brain.generateAndSetHealths()
 	brain.generateAndSetWeight(500, 3000)
-	brain.generateAndSetGrowthRate(body.maturity.BaseRate, brain.weightG.Ideal)
+	brain.generateAndSetGrowthRate(body.Maturity.BaseRate, brain.weightG.Ideal)
 
 	kidney1 := Organ{
-		kind: OrganKidney,
+		Kind: OrganKidney,
 		body: body,
 	}
 	kidney1.generateAndSetHealths()
 	kidney1.generateAndSetWeight(25, 400)
-	kidney1.generateAndSetGrowthRate(body.maturity.BaseRate, kidney1.weightG.Ideal)
+	kidney1.generateAndSetGrowthRate(body.Maturity.BaseRate, kidney1.weightG.Ideal)
 
 	kidney2 := Organ{
-		kind: OrganKidney,
+		Kind: OrganKidney,
 		body: body,
 	}
 	kidney2.generateAndSetHealths()
 	kidney2.generateAndSetWeight(25, 400)
-	kidney2.generateAndSetGrowthRate(body.maturity.BaseRate, kidney2.weightG.Ideal)
+	kidney2.generateAndSetGrowthRate(body.Maturity.BaseRate, kidney2.weightG.Ideal)
 
 	lung1 := Organ{
-		kind: OrganLung,
+		Kind: OrganLung,
 		body: body,
 	}
 	lung1.generateAndSetHealths()
 	lung1.generateAndSetWeight(50, 400)
-	lung1.generateAndSetGrowthRate(body.maturity.BaseRate, lung1.weightG.Ideal)
+	lung1.generateAndSetGrowthRate(body.Maturity.BaseRate, lung1.weightG.Ideal)
 
 	lung2 := Organ{
-		kind: OrganLung,
+		Kind: OrganLung,
 		body: body,
 	}
 	lung2.generateAndSetHealths()
 	lung2.generateAndSetWeight(50, 400)
-	lung2.generateAndSetGrowthRate(body.maturity.BaseRate, lung2.weightG.Ideal)
+	lung2.generateAndSetGrowthRate(body.Maturity.BaseRate, lung2.weightG.Ideal)
 
-	return []*Organ{&heart, &brain, &kidney1, &kidney2, &lung1, &lung2}
+	stomach := Organ{
+		Kind: OrganStomacch,
+		body: body,
+	}
+	stomach.generateAndSetHealths()
+	stomach.generateAndSetWeight(50, 1000)
+	stomach.generateAndSetGrowthRate(body.Maturity.BaseRate, stomach.weightG.Ideal)
+
+	return []*Organ{&heart, &brain, &kidney1, &kidney2, &lung1, &lung2, &stomach}
 }
 
 func (o *Organ) generateAndSetHealths() {
@@ -113,7 +122,7 @@ func (o *Organ) grow() {
 	o.weightG.Current += o.currentGrowthRate()
 
 	// Decrease growth rate modifier by whatever the Current Maturity percentage is
-	p := util.WhatIsPercentOf(o.body.maturity.Current, o.growthRateModifier)
+	p := util.WhatIsPercentOf(o.body.Maturity.Current, o.growthRateModifier)
 	o.growthRateModifier -= p
 }
 
@@ -123,21 +132,21 @@ func (o *Organ) tickHealth() {
 		return
 	}
 	// If the body is not yet mature, the organ is still growing
-	if o.CurrentHealth < o.maxHealth && o.body.maturity.Current < 100 {
+	if o.CurrentHealth < o.maxHealth && o.body.Maturity.Current < 100 {
 		// See what percentage points from ideal size we are off by
 		p := 100 - (math.Abs(float64(util.GetPercent(o.weightG.Current, o.weightG.Ideal) - 100)))
 		inc := util.WhatIsPercentOf(util.Percent(p), o.maxHealth)
 		o.AddHealth(inc)
 	}
 	// give them a break so they don't die right away...
-	if o.body.maturity.Current < 10 {
+	if o.body.Maturity.Current < 10 {
 		return
 	}
 	// but we still have a chance to get damaged
 	damageRoll := util.Roll(0, 100)
 	immunityPerc := util.GetPercent(o.body.Immunity.Current, o.body.Immunity.Max)
 	if int(immunityPerc) < damageRoll {
-		damage := util.WhatIsPercentOf(100 - immunityPerc, damageRoll)
+		damage := util.WhatIsPercentOf(100-immunityPerc, damageRoll)
 		o.SubHealth(damage)
 	}
 
@@ -170,7 +179,7 @@ func (o *Organ) SubHealth(modifier int) {
 }
 
 func (o *Organ) Name() string {
-	return string(o.kind)
+	return string(o.Kind)
 }
 
 func (o *Organ) Descriptor() string {
@@ -198,14 +207,14 @@ func (o *Organ) Descriptor() string {
 
 func (o *Organ) MarshalJSON() ([]byte, error) {
 	return json.Marshal(struct {
-		Kind               organKind
+		Kind               OrganKind
 		WeightG            *Weight
 		CurrentHealth      int
 		MaxHealth          int
 		BaseGrowthRate     int
 		GrowthRateModifier int
 	}{
-		Kind:               o.kind,
+		Kind:               o.Kind,
 		WeightG:            o.weightG,
 		CurrentHealth:      o.CurrentHealth,
 		MaxHealth:          o.maxHealth,

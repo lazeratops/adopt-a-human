@@ -59,3 +59,8 @@ func (i *Immunity) subImmunity(amount int) {
 	}
 	i.Current = new
 }
+
+func (i *Immunity) AddToAttritionModifier(mod, duration int) {
+	i.AttritionModifier += mod
+	i.AttritionModifierDuration = duration
+}

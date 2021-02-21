@@ -26,7 +26,7 @@ func generateWeight() *Weight {
 	}
 }
 
-func(w *Weight) tick(currentMaturity, rate util.Percent) {
+func (w *Weight) tick(currentMaturity, rate util.Percent) {
 	if currentMaturity < 100 {
 		w.Current += util.WhatIsPercentOf(rate, w.Ideal)
 	}

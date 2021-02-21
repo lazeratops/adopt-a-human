@@ -64,7 +64,7 @@ func TestOrganGrowth(t *testing.T) {
 	organ := h.body.Organs[0]
 	require.True(t, organ.baseGrowthRate > 0)
 	require.True(t, organ.growthRateModifier > 0)
-	require.True(t, h.body.maturity.Current == 0)
+	require.True(t, h.body.Maturity.Current == 0)
 	for !h.IsDead() {
 		h.Tick()
 	}

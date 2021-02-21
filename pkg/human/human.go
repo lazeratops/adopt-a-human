@@ -59,27 +59,27 @@ func (h *Human) CauseOfDeath() string {
 		for _, o := range h.body.Organs {
 			// If Organ is dead, see if there is another version of this Organ available to fall back on. If not, die.
 			if o.CurrentHealth <= 0 {
-				causes = append(causes, fmt.Sprintf("%s failure", o.kind))
+				causes = append(causes, fmt.Sprintf("%s failure", o.Kind))
 			}
 		}
 	}
 	return strings.Join(causes, ", ")
 }
 
-func (h* Human) StateReport() string {
+func (h *Human) StateReport() string {
 	state := fmt.Sprintf("%s is %d years old.", h.Name, h.Age)
 
 	body := h.body
 	mind := h.mind
 
-	state += fmt.Sprintf(" Their body is %s.", body.maturity.Descriptor())
+	state += fmt.Sprintf(" Their body is %s.", body.Maturity.Descriptor())
 	state += fmt.Sprintf(" Their mind is %s.", mind.Maturity.Descriptor())
 	state += fmt.Sprintf(" they weigh %d kg.", body.weightKg.Current)
 
 	immunity := body.Immunity
 	immunityPerc := util.GetPercent(immunity.Current, immunity.Max)
 	state += fmt.Sprintf(" Their immunity is %v of their total capacity.", immunityPerc)
-	state += fmt.Sprintf(" %s",mind.StateReport())
+	state += fmt.Sprintf(" %s", mind.StateReport())
 	for _, o := range body.Organs {
 		healthPerc := util.GetPercent(o.CurrentHealth, o.maxHealth)
 		if healthPerc < 50 {
@@ -95,7 +95,7 @@ func (h *Human) organFallbackExists(o *Organ) bool {
 		if otherO == o {
 			continue
 		}
-		if otherO.kind == o.kind {
+		if otherO.Kind == o.Kind {
 			return true
 		}
 	}

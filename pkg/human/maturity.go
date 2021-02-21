@@ -44,7 +44,7 @@ func (m *Maturity) Descriptor() string {
 		return "pretty immature"
 	}
 	if m.Current < 75 {
-		return "progressing to maturity"
+		return "progressing to Maturity"
 	}
 	if m.Current < 100 {
 		return "nearly mature"

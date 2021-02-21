@@ -30,7 +30,6 @@ func (w *World) SetHumanName(name string) {
 
 func (w *World) Run() {
 	for {
-		fmt.Println()
 		w.tick()
 		if !w.watchOnly {
 			decision := pickDecision(w.human.Age)
