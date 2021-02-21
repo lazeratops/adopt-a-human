@@ -17,6 +17,7 @@ type World struct {
 var W *World
 
 func New(watchOnly bool) *World {
+	initIndependentDecisions()
 	return &World{
 		human:     human2.New(),
 		year:      2021,
@@ -31,6 +32,9 @@ func (w *World) SetHumanName(name string) {
 func (w *World) Run() {
 	for {
 		w.tick()
+		if w.human.IsDead() {
+			break
+		}
 		if !w.watchOnly {
 			decision := pickDecision(w.human.Age)
 			if decision != nil {
@@ -41,8 +45,9 @@ func (w *World) Run() {
 				consequence(w.human)
 			}
 		}
-		if w.human.IsDead() {
-			break
+		independentDecision := pickIndependentDecision(w.human.Age)
+		if independentDecision != nil {
+			independentDecision.decide(w.human)
 		}
 		w.stateReport()
 	}
@@ -84,3 +89,25 @@ func pickDecision(humanAge int) *decision {
 	decisions = append(decisions[:idx], decisions[idx+1:]...)
 	return decision
 }
+
+func pickIndependentDecision(humanAge int) *independentDecision {
+	if len(independentDecisions) == 0 {
+		return nil
+	}
+	idx := util.Roll(0, len(independentDecisions))
+	decision := independentDecisions[idx]
+	if decision.called {
+		logrus.Debug("This decision has already been called; skipping")
+		pickDecision(humanAge)
+	}
+	if decision.minAge > -1 && humanAge < decision.minAge {
+		pickDecision(humanAge)
+	}
+	if decision.maxAge > -1 && humanAge > decision.maxAge {
+		pickDecision(humanAge)
+	}
+	// Remove decision from list, we don't want one to be repeated (at least for now)
+	independentDecisions = append(independentDecisions[:idx], independentDecisions[idx+1:]...)
+	return decision
+}
+
