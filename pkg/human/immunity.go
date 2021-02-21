@@ -37,6 +37,9 @@ func (i *Immunity) tick(currentMaturity util.Percent) {
 	if currentMaturity < 100 {
 		off := util.WhatIsPercentOf(currentMaturity, i.Max)
 		i.Current = off
+	} else {
+		// Once they mature, their immunity starts going down by 1% each year
+		i.Current--
 	}
 	i.subImmunity(i.currentAttrition())
 	if i.AttritionModifier != 0 {

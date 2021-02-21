@@ -5,7 +5,6 @@ import (
 	"aah/pkg/util"
 	"fmt"
 	"github.com/gookit/color"
-	"github.com/smartystreets/goconvey/convey/reporting"
 )
 
 // maybe decisions should be based on current state of the human...
@@ -154,7 +153,7 @@ var decisions = []decision{
 				} else {
 					// If they are more stubborn than agreeable, organ health has a chance of going down
 					body := h.Body()
-					damageAllOrgans(body, 1, 11)
+					damageAllOrgans(body, 1, 11, false)
 
 					// Kindness has a chance of going up
 					perc := util.Roll(0, 15)
@@ -193,7 +192,7 @@ var decisions = []decision{
 					// They're pretty stubborn...they hold out for the amount of difference, organs getting damaged each turn
 					for i := 0; i < diff; i++ {
 						reportResult(fmt.Sprintf("They're still holding out..."))
-						damageAllOrgans(body, 0, 6)
+						damageAllOrgans(body, 0, 6, true)
 					}
 					for _, o := range body.Organs {
 						for i, originalO := range originalHealths {
@@ -217,7 +216,7 @@ var decisions = []decision{
 	{
 		minAge: -1,
 		maxAge: -1,
-		query:  "You caught your human eating sand. What do you do?",
+		query:  "You caught your human eating sand. How do you react?",
 		choices: choices{
 			"Yell at them.": func(h *human.Human) {
 				reportResultHeading(fmt.Sprintf("You yelled at them. What kind of an idiot eats sand?! %s", resultStr))
@@ -289,7 +288,7 @@ var decisions = []decision{
 				perc := util.Percent(util.Roll(0, 11))
 				res := util.WhatIsPercentOf(perc, mind.Stress.Base)
 				mind.Stress.Current -= res
-				reportResult(fmt.Sprintf("The sand crunching between their teeth was oddly soothing...theri stress went down by %d of the base", perc))
+				reportResult(fmt.Sprintf("The sand crunching between their teeth was oddly soothing...their stress went down by %d of the base", perc))
 			},
 		},
 	},
@@ -308,7 +307,7 @@ var decisions = []decision{
 					// chance of falling is pretty low due to their resilience
 					if fallRoll > 800 {
 						reportResult("They almost reach the top, but then they slip and fall to the ground!!!")
-						damageAllOrgans(body, 0, 5)
+						damageAllOrgans(body, 0, 5, false)
 					} else {
 						reportResult("They get to the top! They breathe the crisp canopy air and snack on some bugs.")
 						perc := util.Percent(util.Roll(5, 16))
@@ -323,7 +322,7 @@ var decisions = []decision{
 					// chance of falling is slightly more likely because they are stressed
 					if fallRoll > 600 {
 						reportResult("They are a bit too stressed to be doing this. They fall from a great height!")
-						damageAllOrgans(body, 0, 5)
+						damageAllOrgans(body, 0, 5, false)
 					}
 				}
 
@@ -337,15 +336,109 @@ var decisions = []decision{
 				addToMentalProperty(mind.Resilience, mind.Maturity.Current, 0, 16, "")
 
 				// Their stress goes up
+				addToMentalProperty(mind.Stress, mind.Maturity.Current, 0, 5, "")
+
+				fallRoll := util.Roll(0, 1000)
+				minToFall := 500
+				if mind.Stress.Current > mind.Resilience.Current {
+					minToFall = 400
+				}
+				if fallRoll >= minToFall {
+					reportResult("They fell from the stress of not getting dinner.")
+					damageAllOrgans(body, 0, 5, false)
+				}
 
 			},
 			"Yell at them to come down. It's dangerous and you don't have health insurance!": func(h *human.Human) {
 				reportResultHeading(fmt.Sprintf("You yelled at them to come down. %s", resultStr))
+				body := h.Body()
+				mind := h.Mind()
+
+				if mind.Stubbornness.Current > mind.Agreeableness.Current {
+					addToMentalProperty(mind.Resilience, mind.Maturity.Current, 1, 15, "They're too stubborn to listen and keep climbing.")
+					fallRoll := util.Roll(0, 1000)
+					minToFall := 700
+					if mind.Stress.Current > mind.Resilience.Current {
+						minToFall = 500
+					}
+					if fallRoll >= minToFall {
+						reportResult("They fell from the tree.")
+						damageAllOrgans(body, 0, 5, false)
+					}
+					return
+				}
+				subFromMentalProperty(mind.Resilience, mind.Maturity.Current, 1, 15, "They come down and are dejected by not being able to follow their tree-climbing passion.")
+			},
+		},
+	},
+	{
+		minAge: -1,
+		maxAge: -1,
+		query:  "You spot your human attempting to cross a very busy road. How do you react?",
+		choices: choices{
+			"Take their hand and help lead them across.": func(h *human.Human) {
+				reportResultHeading(fmt.Sprintf("You led them across the road to safety. %s", resultStr))
+				mind := h.Mind()
+				body := h.Body()
+				subFromMentalProperty(mind.Resilience, mind.Maturity.Current, 1, 20, "Who knows if they'll ever cross a road on their own now.")
+				recoverAllOrgans(body, 0, 5)
+
+			},
+			"What are you, their mother? Let them cross.": func(h *human.Human) {
+				reportResultHeading(fmt.Sprintf("You went back to your book. %s", resultStr))
+				mind := h.Mind()
+				body := h.Body()
+				hitRoll := util.Roll(0, 1000)
+				minToHit := 500
+				if mind.Stress.Current > mind.Resilience.Current {
+					minToHit = 400
+				}
+				if hitRoll > minToHit {
+					reportResult("They got hit by a car.")
+					damageAllOrgans(body, 0, 10, false)
+					return
+				} else {
+					addToMentalProperty(mind.Stress, mind.Maturity.Current, 0, 5, "They're pretty stressed from dodging all those semi-trucks.")
+					addToMentalProperty(mind.Resilience, mind.Maturity.Current, 0, 10, "They know it's just them against the world now.")
+				}
 
 			},
 		},
 	},
 	{
+		minAge: -1,
+		maxAge: -1,
+		query:  "Your human decides to join a cult. What do you do?",
+		choices: choices{
+			"Invite them to your cult. The more the merrier!": func(h *human.Human) {
+				reportResultHeading(fmt.Sprintf("What a coincidence! You happen to have a cult! %s", resultStr))
+				mind := h.Mind()
+				addToMentalProperty(mind.Agreeableness, mind.Maturity.Current, 5, 11, "They're into it.")
+
+			},
+			"Try to convince them out of it.": func(h *human.Human) {
+				reportResultHeading(fmt.Sprintf("You yelled at them. What kind of an idiot eats sand?! %s", resultStr))
+				mind := h.Mind()
+				if mind.Agreeableness.Current > mind.Stubbornness.Current {
+					subFromMentalProperty(mind.Stress, mind.Maturity.Current, 5, 15, "They agree to drop the cult thing.")
+					return
+				}
+				// Roll for whether this is a good cult
+				roll := util.Roll(0, 1000)
+				if roll > 900 {
+					// This happens to be a good cult
+					reportResult("They don't listen, and it turns out to be a good cult.")
+					subFromMentalProperty(mind.Stress, mind.Maturity.Current, 5, 50, "All the dancing helps them relax.")
+					recoverAllOrgans(h.Body(), 1, 10)
+					return
+				}
+				reportResult("They don't listen and fall into the clutches of a cult wielding tyrant.")
+				addToMentalProperty(mind.Stress, mind.Maturity.Current, 0, 20, "They're forced to work day and night.")
+				damageAllOrgans(h.Body(), 0, 10, false)
+			},
+		},
+	},
+	/* {
 		minAge: -1,
 		maxAge: -1,
 		query:  "You caught your human eating sand. What do you do?",
@@ -355,18 +448,7 @@ var decisions = []decision{
 
 			},
 		},
-	},
-	{
-		minAge: -1,
-		maxAge: -1,
-		query:  "You caught your human eating sand. What do you do?",
-		choices: choices{
-			"Yell at them.": func(h *human.Human) {
-				reportResultHeading(fmt.Sprintf("You yelled at them. What kind of an idiot eats sand?! %s", resultStr))
-
-			},
-		},
-	},
+	}, */
 }
 
 func reportResultHeading(result string) {
@@ -412,12 +494,14 @@ func subFromMentalProperty(m *human.MentalProperty, maturityPerc util.Percent, m
 	reportResult(fmt.Sprintf("%s. Their current %s went down by %s", context, m.Name, perc))
 }
 
-func damageAllOrgans(b *human.Body, minPerc, maxPerc int) {
+func damageAllOrgans(b *human.Body, minPerc, maxPerc int, noLog bool) {
 	for _, o := range b.Organs {
 		perc := util.Roll(minPerc, maxPerc)
 		toSub := util.WhatIsPercentOf(util.Percent(perc), o.CurrentHealth)
 		o.SubHealth(toSub)
-		reportResult(fmt.Sprintf("Their %s health decreased by %v", o.Name(), util.Percent(perc)))
+		if !noLog {
+			reportResult(fmt.Sprintf("Their %s health decreased by %v", o.Name(), util.Percent(perc)))
+		}
 	}
 }
 
