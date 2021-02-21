@@ -417,7 +417,7 @@ var decisions = []decision{
 
 			},
 			"Try to convince them out of it.": func(h *human.Human) {
-				reportResultHeading(fmt.Sprintf("You yelled at them. What kind of an idiot eats sand?! %s", resultStr))
+				reportResultHeading(fmt.Sprintf("You tried to convince them not to join a cult. %s", resultStr))
 				mind := h.Mind()
 				if mind.Agreeableness.Current > mind.Stubbornness.Current {
 					subFromMentalProperty(mind.Stress, mind.Maturity.Current, 5, 15, "They agree to drop the cult thing.")
@@ -435,6 +435,86 @@ var decisions = []decision{
 				reportResult("They don't listen and fall into the clutches of a cult wielding tyrant.")
 				addToMentalProperty(mind.Stress, mind.Maturity.Current, 0, 20, "They're forced to work day and night.")
 				damageAllOrgans(h.Body(), 0, 10, false)
+			},
+		},
+	},
+	{
+		minAge: -1,
+		maxAge: -1,
+		query:  "Your human goes on a drug fueled bender. What's your reaction?",
+		choices: choices{
+			"Take them to rehab. They need your support!": func(h *human.Human) {
+				reportResultHeading(fmt.Sprintf("You took them straight to rehab. %s", resultStr))
+				mind := h.Mind()
+				if mind.Agreeableness.Current > mind.Stubbornness.Current {
+					reportResult("They take well to rehab kick their drug habit.")
+					recoverAllOrgans(h.Body(), 5,25)
+					mind := h.Mind()
+					subFromMentalProperty(mind.Stress, mind.Maturity.Current, 0,25, "They see the world through fresh eyes.")
+					return
+				}
+				escapeAttemptRoll := util.Roll(0, 100)
+				if escapeAttemptRoll > 500 {
+					reportResult("They escape from rehab and get back on the drugs.")
+					damageAllOrgans(h.Body(), 5, 15, false)
+					addToMentalProperty(mind.Stress, mind.Maturity.Current, 0,10, "The escape takes a lot out of them.")
+					return
+				}
+				reportResult("They go kicking and screaming, but the rehab works.")
+				addToMentalProperty(mind.Agreeableness, mind.Maturity.Current, 0,15, "They learn to be more social.")
+				addToMentalProperty(mind.Kindness, mind.Maturity.Current, 0,15, "The nice nurses are very kind to them.")
+				recoverAllOrgans(h.Body(), 5,25)
+			},
+			"Stage an at-home intervention.": func(h *human.Human) {
+				reportResultHeading(fmt.Sprintf("You staged an at-home intervention. %s", resultStr))
+				mind := h.Mind()
+				if mind.Agreeableness.Current > mind.Stubbornness.Current {
+					reportResult("They respond well to your intervention.")
+					recoverAllOrgans(h.Body(), 5,15)
+					mind := h.Mind()
+					addToMentalProperty(mind.Resilience, mind.Maturity.Current, 0,15, "They know you have their back.")
+					addToMentalProperty(mind.Kindness, mind.Maturity.Current, 0,15, "They appreciate how you went about things.")
+					return
+				}
+				reportResult("Your efforts are fruitless. They don't really care what you think.")
+				addToMentalProperty(mind.Stress, mind.Maturity.Current, 1,15, "Just listening to you makes them antsy.")
+				damageAllOrgans(h.Body(), 1,25, false)
+			},
+			"Sell them some drugs.": func(h *human.Human) {
+				reportResultHeading(fmt.Sprintf("You've got drugs, too. Better they get them from you than off the streets. %s", resultStr))
+				mind := h.Mind()
+				body := h.Body()
+				subFromMentalProperty(mind.Stress, mind.Maturity.Current, 0,10, "They're relieved to have more drugs always at their disposal now.")
+				addToMentalProperty(mind.Agreeableness, mind.Maturity.Current, 5, 15, "They think you're pretty cool.")
+				damageAllOrgans(body, 5,30, false)
+			},
+		},
+	},
+	{
+		minAge: -1,
+		maxAge: -1,
+		query:  "Your human decides to try and genetically engineer their own killer virus. Do you help?",
+		choices: choices{
+			"Of course. You need to be supportive!": func(h *human.Human) {
+				reportResultHeading(fmt.Sprintf("You dig out your dusty old virus engineering textbooks and get to work. %s", resultStr))
+				mind := h.Mind()
+				addToMentalProperty(mind.Agreeableness, mind.Maturity.Current, 0,15, "They appreciate your support.")
+				accidentRoll := util.Roll(0,100)
+				if accidentRoll > 85 {
+					reportResult("There's been an accident in your makeshift lab!")
+					damageAllOrgans(h.Body(), 0, 10, false)
+				}
+			},
+			"Call the police.": func(h *human.Human) {
+				reportResultHeading(fmt.Sprintf("You call the domestic terrorism tipline. %s", resultStr))
+				mind := h.Mind()
+				addToMentalProperty(mind.Stress, mind.Maturity.Current, 0, 5, "Being busted by cops while making a virus isn't the most relaxing thing in the world.")
+				policeBrutalityRoll := util.Roll(0,100)
+				if policeBrutalityRoll > 50 {
+					body := h.Body()
+					reportResult("The police aren't very nice to your human...")
+					damageAllOrgans(body, 0,5, false)
+				}
 			},
 		},
 	},

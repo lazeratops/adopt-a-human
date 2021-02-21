@@ -11,6 +11,7 @@ var watchOnly bool
 var logLevel string
 
 func Init() {
+	cobra.MousetrapHelpText = ""
 	RootCmd.Flags().BoolVarP(&watchOnly, "watch", "w", false, "Just watch your human; do not make any decisions")
 	RootCmd.Flags().StringVarP(&logLevel, "log-level", "l", "error", "Log level")
 
