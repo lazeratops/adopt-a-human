@@ -20,8 +20,8 @@ type Immunity struct {
 }
 
 func generateImmunity() *Immunity {
-	max := util.Roll(11, maxImmunity)
-	current := util.Roll(10, max)
+	max := util.Roll(100, maxImmunity)
+	current := util.Roll(50, max)
 
 	baseAttrition := util.Roll(minImmunityAttrition, maxImmunityAttrition)
 	return &Immunity{

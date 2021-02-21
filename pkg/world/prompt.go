@@ -1,46 +1,30 @@
 package world
 
 import (
-	"github.com/chzyer/readline"
-	"github.com/tigergraph/promptui"
+	"github.com/AlecAivazis/survey/v2"
 )
 
-// promptSelection asks the user to select from a slice and returns the selected item.
-func promptSelection(label string, items []string) (selection string, err error) {
-	prompt := promptui.Select{
-		Label: label,
-		Items: items,
-		Keys: &promptui.SelectKeys{
-			Next: promptui.Key{
-				Code:    's',
-				Display: "s",
-			},
-			Prev: promptui.Key{
-				Code:    'w',
-				Display: "w",
-			},
-			PageUp: promptui.Key{
-				Code:    readline.CharBackward,
-				Display: "←",
-			},
-			PageDown: promptui.Key{
-				Code:    readline.CharForward,
-				Display: "→",
-			},
-			Search: promptui.Key{Code: '/', Display: "/"},
-		},
+func promptSelection(label string, items []string) (string, error) {
+	prompt := &survey.Select{
+		Message: label,
+		Options: items,
 	}
-	_, selection, err = prompt.Run()
-	return selection, err
+
+	var res string
+	if err := survey.AskOne(prompt, &res); err != nil {
+		return "", err
+	}
+	return res, nil
 }
 
 // promptString asks the user to enter a string and returns it.
 func promptString(label string, validation func(i string) error) (input string, err error) {
-	prompt := promptui.Prompt{
-		Label: label,
-		Validate: func(s string) error {
-			return nil
-		},
+	prompt := survey.Input{
+		Message: label,
 	}
-	return prompt.Run()
+	var res string
+	if err := survey.AskOne(&prompt, &res); err != nil {
+		return "", err
+	}
+	return res, nil
 }
