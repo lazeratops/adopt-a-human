@@ -36,7 +36,7 @@ func (w *World) Run() {
 			break
 		}
 		if !w.watchOnly {
-			decision := pickDecision(w.human.Age)
+			decision := pickDecision(w.human.Age, 3)
 			if decision != nil {
 				consequence, err := decision.decide()
 				if err != nil {
@@ -45,7 +45,7 @@ func (w *World) Run() {
 				consequence(w.human)
 			}
 		}
-		independentDecision := pickIndependentDecision(w.human.Age)
+		independentDecision := pickIndependentDecision(w.human.Age, 3)
 		if independentDecision != nil {
 			independentDecision.decide(w.human)
 		}
@@ -69,42 +69,42 @@ func (w *World) tick() {
 	w.human.Tick()
 }
 
-func pickDecision(humanAge int) *decision {
-	if len(decisions) == 0 {
+func pickDecision(humanAge int, attemptsLeft int) *decision {
+	if len(decisions) == 0 || attemptsLeft == 0 {
 		return nil
 	}
 	idx := util.Roll(0, len(decisions))
 	decision := decisions[idx]
 	if decision.called {
 		logrus.Debug("This decision has already been called; skipping")
-		pickDecision(humanAge)
+		return pickDecision(humanAge, attemptsLeft - 1)
 	}
 	if decision.minAge > -1 && humanAge < decision.minAge {
-		pickDecision(humanAge)
+		return pickDecision(humanAge, attemptsLeft - 1)
 	}
 	if decision.maxAge > -1 && humanAge > decision.maxAge {
-		pickDecision(humanAge)
+		return pickDecision(humanAge, attemptsLeft - 1)
 	}
 	// Remove decision from list, we don't want one to be repeated (at least for now)
 	decisions = append(decisions[:idx], decisions[idx+1:]...)
 	return decision
 }
 
-func pickIndependentDecision(humanAge int) *independentDecision {
-	if len(independentDecisions) == 0 {
+func pickIndependentDecision(humanAge int, attemptsLeft int) *independentDecision {
+	if len(independentDecisions) == 0 || attemptsLeft == 0 {
 		return nil
 	}
 	idx := util.Roll(0, len(independentDecisions))
 	decision := independentDecisions[idx]
 	if decision.called {
 		logrus.Debug("This decision has already been called; skipping")
-		pickDecision(humanAge)
+		return pickIndependentDecision(humanAge, attemptsLeft - 1)
 	}
 	if decision.minAge > -1 && humanAge < decision.minAge {
-		pickDecision(humanAge)
+		return pickIndependentDecision(humanAge, attemptsLeft - 1)
 	}
 	if decision.maxAge > -1 && humanAge > decision.maxAge {
-		pickDecision(humanAge)
+		return pickIndependentDecision(humanAge, attemptsLeft - 1)
 	}
 	// Remove decision from list, we don't want one to be repeated (at least for now)
 	independentDecisions = append(independentDecisions[:idx], independentDecisions[idx+1:]...)
