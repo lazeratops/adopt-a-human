@@ -67,24 +67,30 @@ func (h *Human) CauseOfDeath() string {
 }
 
 func (h *Human) StateReport() string {
-	state := fmt.Sprintf("%s is %d years old.", h.Name, h.Age)
+	state := color.Gray.Sprintf("%s is %d years old.", h.Name, h.Age)
 
 	body := h.body
 	mind := h.mind
 
-	state += fmt.Sprintf(" Their body is %s.", body.Maturity.Descriptor())
-	state += fmt.Sprintf(" Their mind is %s.", mind.Maturity.Descriptor())
-	state += fmt.Sprintf(" they weigh %d kg.", body.weightKg.Current)
+	state += color.Gray.Sprintf(" Their body is %s.", body.Maturity.Descriptor())
+	state += color.Gray.Sprintf(" Their mind is %s.", mind.Maturity.Descriptor())
+	state += color.Gray.Sprintf(" they weigh %d kg.", body.weightKg.Current)
 
 	immunity := body.Immunity
 	immunityPerc := util.GetPercent(immunity.Current, immunity.Max)
-	state += fmt.Sprintf(" Their immunity is %v of their total capacity.", immunityPerc)
-	state += fmt.Sprintf(" %s", mind.StateReport())
+	state += color.Gray.Sprintf(" Their immunity is %v of their total capacity.", immunityPerc)
+	state += color.Gray.Sprintf(" %s", mind.StateReport())
+	state += "\n"
+	var allHealthy bool
 	for _, o := range body.Organs {
 		healthPerc := util.GetPercent(o.CurrentHealth, o.maxHealth)
 		if healthPerc < 50 {
-			state += color.Yellow.Sprintf("\nTheir %s is %s.", o.Name(), o.Descriptor())
+			allHealthy = false
+			state += color.Yellow.Sprintf("Their %s is %s. ", o.Name(), o.Descriptor())
 		}
+	}
+	if allHealthy {
+		color.LightGreen.Sprintf("\nAll of their organs are pretty healthy!")
 	}
 	return state
 }

@@ -4,4 +4,4 @@ Decision ideas:
 * @CrappyCodingGuy - road crossing
 * Joakim Olsson - cult joining
 * Tom Solberg - drug-fueled bender
-* Oskar Holmkratz - enlightenment
+* Oskar Holmkratz - atlas shrugged dilemma

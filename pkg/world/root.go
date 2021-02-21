@@ -35,6 +35,15 @@ var RootCmd = &cobra.Command{
 		default:
 			log.SetLevel(log.ErrorLevel)
 		}
+
+		ascii := `
+   ___      __            __        ___        __ __                      
+  / _ | ___/ /___   ___  / /_ ____ / _ | ____ / // /__ __ __ _  ___ _ ___ 
+ / __ |/ _  // _ \ / _ \/ __//___// __ |/___// _  // // //  ' \/ _ ''// _ \
+/_/ |_|\_,_/ \___// .__/\__/     /_/ |_|    /_//_/ \_,_//_/_/_/\_,_//_//_/
+                 /_/
+`
+		color.Green.Print(ascii)
 		start()
 	},
 }
@@ -56,6 +65,9 @@ func start() {
 		if selection == "start" {
 			pickName(world)
 			world.Run()
+			if restart() {
+				start()
+			}
 			return
 		}
 		start()
@@ -63,6 +75,20 @@ func start() {
 	}
 	pickName(world)
 	world.Run()
+	if restart() {
+		start()
+	}
+}
+
+func restart() bool {
+	res, err := promptSelection("Play again?", []string{"yes, get me a new human", "no"})
+	if err != nil {
+		log.WithError(err).Fatal("failed to select whether to play again")
+	}
+	if res == "yes, get me a new human" {
+		return true
+	}
+	return false
 }
 
 func pickName(world *World) {
